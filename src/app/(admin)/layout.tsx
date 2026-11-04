@@ -8,6 +8,7 @@ import {
   ExternalLink,
   Store,
   MapPin,
+  Users,
 } from "lucide-react";
 import { SessionProvider } from "next-auth/react";
 import { AdminSessionGuard } from "@/components/admin/AdminSessionGuard";
@@ -69,6 +70,14 @@ export default function AdminLayout({
                 >
                   <ImageIcon className="w-4 h-4 text-stone-400" />
                   <span className="font-medium">Hero Banner Manager</span>
+                </Link>
+
+                <Link
+                  href="/admin/users"
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-stone-300 hover:text-white hover:bg-stone-900 transition-all"
+                >
+                  <Users className="w-4 h-4 text-stone-400" />
+                  <span className="font-medium">Staff & User Privileges</span>
                 </Link>
               </nav>
             </div>

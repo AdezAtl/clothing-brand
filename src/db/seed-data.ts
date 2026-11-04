@@ -315,7 +315,7 @@ export const SEED_REVIEWS = [
     rating: 5,
     location: "Lagos, Nigeria",
     comment:
-      "Ordered the Moremi Corset Dress for a family wedding. The internal boning gives incredible structure without pinching. Tullipio understands real African tailoring.",
+      "Ordered the Moremi Corset Dress for a family wedding. The internal structure gives incredible silhouette without pinching. Tullipíò understands real contemporary African craftsmanship. Proud to be a Tulip!",
     date: "January 2026",
   },
   {

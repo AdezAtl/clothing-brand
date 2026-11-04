@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, signOut, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, ArrowRight, AlertCircle, RefreshCw, Clock, LogOut } from "lucide-react";
 
@@ -33,6 +33,14 @@ function AdminLoginForm() {
         setError("Invalid email or password. Access restricted to Tullipio staff.");
         setLoading(false);
       } else {
+        const session = await getSession();
+        if ((session?.user as any)?.role !== "admin") {
+          await signOut({ redirect: false });
+          setError("Access Denied: This account has regular customer privileges. Only accounts with admin privileges can access the Atelier Management Portal.");
+          setLoading(false);
+          return;
+        }
+
         // Mark tab session active and timestamp for 24hr duration
         if (typeof window !== "undefined") {
           sessionStorage.setItem("tullipio_admin_tab_session", "active");
@@ -88,6 +96,13 @@ function AdminLoginForm() {
           <div className="my-4 p-3.5 bg-stone-100 border border-stone-200 rounded-2xl text-stone-700 text-xs flex items-center gap-2.5 shadow-2xs">
             <Lock className="w-4 h-4 shrink-0 text-stone-600" />
             <span>Please log in to initiate an active atelier session in this tab.</span>
+          </div>
+        )}
+
+        {(reason === "customer_access_denied" || reason === "unauthorized") && (
+          <div className="my-4 p-3.5 bg-red-50 border border-red-200/80 rounded-2xl text-red-800 text-xs flex items-center gap-2.5 shadow-2xs">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+            <span>Access Denied: Regular customer accounts cannot access the Atelier management portal. Please log in with an administrator account.</span>
           </div>
         )}
 

@@ -8,13 +8,28 @@ import { Loader2 } from "lucide-react";
 export function AdminSessionGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     // Skip guard on login page itself
     if (pathname === "/admin/login") {
       setChecking(false);
+      return;
+    }
+
+    // Still loading session
+    if (status === "loading") {
+      setChecking(true);
+      return;
+    }
+
+    // Role-based block: only accounts with role: "admin" can access /admin routes
+    if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
+      sessionStorage.removeItem("tullipio_admin_tab_session");
+      sessionStorage.removeItem("tullipio_admin_login_time");
+      sessionStorage.removeItem("tullipio_just_logged_in");
+      signOut({ redirect: true, callbackUrl: "/admin/login?reason=customer_access_denied" });
       return;
     }
 
@@ -83,7 +98,7 @@ export function AdminSessionGuard({ children }: { children: React.ReactNode }) {
     }, remainingTime);
 
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, status, session]);
 
   if (checking && pathname !== "/admin/login") {
     return (

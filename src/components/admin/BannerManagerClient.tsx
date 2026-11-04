@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { SeedBanner } from "@/db/seed-data";
-import { updateHeroBannerAction } from "@/app/actions/admin-actions";
+import { updateHeroBannerAction } from "@/actions";
 import { Check, Loader2, Sparkles, Image as ImageIcon, Eye } from "lucide-react";
 
 interface BannerManagerClientProps {

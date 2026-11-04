@@ -2,7 +2,6 @@ import React from "react";
 import { getCategories, getProducts } from "@/db/store";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import Link from "next/link";
-import { SlidersHorizontal } from "lucide-react";
 
 interface ShopPageProps {
   searchParams: Promise<{
@@ -43,23 +42,17 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       {/* Header Banner — Softer White with Subtle Shadow */}
-      <div className="mb-10 p-7 sm:p-8 rounded-2xl bg-[#FAF8F5] border border-stone-200/85 flex flex-col md:flex-row md:items-end justify-between gap-6 shadow-[0_4px_20px_-4px_rgba(28,25,23,0.06)]">
-        <div>
-          <span className="text-xs uppercase font-mono tracking-widest text-stone-500">
-            Catalog & Ready Garments
-          </span>
-          <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-950 mt-1">
-            {currentCategoryObj ? currentCategoryObj.name : "All Tullipio Garments"}
-          </h1>
-          <p className="text-xs text-stone-600 mt-2 max-w-xl leading-relaxed">
-            {currentCategoryObj?.description ||
-              "Explore contemporary Yoruba and pan-African garments handcrafted with heavyweight heritage textiles in Akobo, Ibadan."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs font-mono text-stone-600 bg-[#F4F1EA] px-4 py-2 rounded-full border border-stone-200/80 shrink-0">
-          <SlidersHorizontal className="w-3.5 h-3.5" />
-          <span>Showing {filtered.length} garments</span>
-        </div>
+      <div className="mb-10 p-7 sm:p-8 rounded-2xl bg-[#FAF8F5] border border-stone-200/85 shadow-[0_4px_20px_-4px_rgba(28,25,23,0.06)]">
+        <span className="text-xs uppercase font-mono tracking-widest text-stone-500">
+          Catalog & Ready Garments
+        </span>
+        <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-950 mt-1">
+          {currentCategoryObj ? currentCategoryObj.name : "All Tullipio Garments"}
+        </h1>
+        <p className="text-xs text-stone-600 mt-2 max-w-xl leading-relaxed">
+          {currentCategoryObj?.description ||
+            "Explore contemporary Yoruba and pan-African garments handcrafted with heavyweight heritage textiles in Akobo."}
+        </p>
       </div>
 
       {/* Category Filter Pills */}

@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { formatPriceNGN } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { SeedProduct } from "@/db/seed-data";
-import { Check, ShoppingBag, Eye, X } from "lucide-react";
+import { Check, ShoppingBag, Eye, X, Heart } from "lucide-react";
 
 interface ProductCardProps {
   product: SeedProduct;
@@ -14,6 +15,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const { addItem } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [addedNotice, setAddedNotice] = useState(false);
   const [isEnlarged, setIsEnlarged] = useState(false);
 
@@ -23,6 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const isLowStock =
     (currentVariant?.stockQuantity ?? 0) > 0 &&
     (currentVariant?.stockQuantity ?? 0) <= 2;
+  const isWishlisted = isInWishlist(product.id);
 
   // ESC key listener to close enlarged image lightbox
   useEffect(() => {
@@ -70,6 +73,19 @@ export function ProductCard({ product }: ProductCardProps) {
     setIsEnlarged(true);
   };
 
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist({
+      productId: product.id,
+      name: product.name,
+      slug: product.slug,
+      basePrice: currentPrice,
+      frontImageUrl: product.frontImageUrl,
+      inStock,
+    });
+  };
+
   return (
     <>
       <div
@@ -84,8 +100,8 @@ export function ProductCard({ product }: ProductCardProps) {
             className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-104"
           />
 
-          {/* Stock Badge */}
-          <div className="absolute top-3.5 right-3.5">
+          {/* Stock Badge (Top Left) */}
+          <div className="absolute top-3 left-3 z-10 pointer-events-none">
             {!inStock ? (
               <span className="bg-stone-900/90 backdrop-blur-xs text-stone-200 text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-full shadow-xs">
                 Sold Out
@@ -96,6 +112,27 @@ export function ProductCard({ product }: ProductCardProps) {
               </span>
             ) : null}
           </div>
+
+          {/* Wishlist Icon Button (Top Right Corner) */}
+          <button
+            type="button"
+            onClick={handleWishlistToggle}
+            className={`absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-[0_2px_8px_rgba(28,25,23,0.08)] cursor-pointer active:scale-90 ${
+              isWishlisted
+                ? "bg-rose-50 text-rose-600 border border-rose-200"
+                : "bg-[#FAF8F5]/90 hover:bg-white text-stone-600 hover:text-stone-950 border border-stone-200/80 backdrop-blur-xs"
+            }`}
+            title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          >
+            <Heart
+              className={`w-4 h-4 transition-transform ${
+                isWishlisted
+                  ? "fill-rose-600 text-rose-600 scale-105"
+                  : "stroke-[1.75]"
+              }`}
+            />
+          </button>
 
           {/* Quick View / Add Hover Overlay */}
           <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-stone-950/80 via-stone-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2">

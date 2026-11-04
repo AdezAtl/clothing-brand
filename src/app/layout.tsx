@@ -2,23 +2,26 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tullipio Fashion House | Modern Yoruba Heritage & Bespoke Tailoring",
+  title: "Tullipíò | Made in Ìbàdàn, NG — Contemporary Womenswear & Cultural Heritage",
   description:
-    "Premier African fashion design brand in Akobo, Ibadan. Architectural Agbadas, contemporary two-piece sets, sculpted dresses, and ready-to-wear.",
+    "Contemporary womenswear bridging Aṣọ Òkè, Àdìrẹ, and cutting-edge architectural tailoring. Handcrafted in Akobo, Ìbàdàn. For the explorer in you.",
   keywords: [
-    "Tullipio Fashion House",
-    "Agbada Ibadan",
-    "African Fashion",
-    "Bespoke Tailoring Ibadan",
-    "Senator Suit",
-    "Akobo Ibadan Tailor",
+    "Tullipíò",
+    "Tullipio",
+    "Made in Ibadan",
+    "Aṣọ Òkè",
+    "Àdìrẹ",
+    "Contemporary Womenswear",
+    "Ibadan Fashion",
+    "Tulips",
+    "Akobo Ibadan Tailoring",
   ],
   openGraph: {
-    title: "Tullipio Fashion House | Akobo, Ibadan",
+    title: "Tullipíò | Made in Ìbàdàn, NG",
     description:
-      "Architectural African silhouettes crafted from heavyweight heritage textiles.",
+      "Contemporary womenswear and cutting-edge tailoring rooted in Nigerian heritage textiles. For the explorer in you.",
     url: "https://tullipio.com",
-    siteName: "Tullipio Fashion House",
+    siteName: "Tullipíò",
     locale: "en_NG",
     type: "website",
   },

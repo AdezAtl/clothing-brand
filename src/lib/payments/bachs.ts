@@ -30,8 +30,30 @@ export interface BachsWebhookEvent {
   };
 }
 
-const BACHS_SECRET_KEY = process.env.BACHS_SECRET_KEY || "bachs_sk_test_sample_tullipio_2026";
-const BACHS_WEBHOOK_SECRET = process.env.BACHS_WEBHOOK_SECRET || "bachs_whsec_sample_hmac_secret_2026";
+function getBachsSecretKey(): string {
+  if (process.env.BACHS_SECRET_KEY) {
+    return process.env.BACHS_SECRET_KEY;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Missing required BACHS_SECRET_KEY in production. Ensure environment variables are configured in production deployments."
+    );
+  }
+  return "bachs_sk_test_sample_tullipio_2026";
+}
+
+function getBachsWebhookSecret(): string {
+  if (process.env.BACHS_WEBHOOK_SECRET) {
+    return process.env.BACHS_WEBHOOK_SECRET;
+  }
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Missing required BACHS_WEBHOOK_SECRET in production. Ensure environment variables are configured in production deployments."
+    );
+  }
+  return "bachs_whsec_sample_hmac_secret_2026";
+}
+
 const BACHS_API_URL = process.env.BACHS_API_URL || "https://api.bachspay.com/v1";
 
 /**
@@ -45,10 +67,11 @@ export async function initializeBachsTransaction(
 
   // Real API call attempt
   try {
+    const secretKey = getBachsSecretKey();
     const response = await fetch(`${BACHS_API_URL}/checkout/initialize`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${BACHS_SECRET_KEY}`,
+        Authorization: `Bearer ${secretKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -94,8 +117,9 @@ export function verifyBachsWebhookSignature(
 ): boolean {
   if (!signatureHeader) return false;
 
+  const webhookSecret = getBachsWebhookSecret();
   const expectedSignature = crypto
-    .createHmac("sha256", BACHS_WEBHOOK_SECRET)
+    .createHmac("sha256", webhookSecret)
     .update(rawBody)
     .digest("hex");
 

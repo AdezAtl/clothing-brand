@@ -1,5 +1,5 @@
 import React from "react";
-import { CartProvider } from "@/context/CartContext";
+import { StoreProviders } from "@/components/providers/StoreProviders";
 import { Navbar } from "@/components/storefront/Navbar";
 import { Footer } from "@/components/storefront/Footer";
 import { CartDrawer } from "@/components/storefront/CartDrawer";
@@ -11,7 +11,7 @@ export default function StorefrontLayout({
   children: React.ReactNode;
 }) {
   return (
-    <CartProvider>
+    <StoreProviders>
       <div className="min-h-screen flex flex-col bg-[#f6f3ec] text-[#181716] selection:bg-stone-900 selection:text-stone-50">
         <Navbar />
         <main className="flex-1">{children}</main>
@@ -19,6 +19,6 @@ export default function StorefrontLayout({
         <CartDrawer />
         <WhatsAppFloatingButton />
       </div>
-    </CartProvider>
+    </StoreProviders>
   );
 }

@@ -15,7 +15,7 @@ import { formatPriceNGN } from "@/lib/utils";
 import {
   createNewProductAction,
   updateStockAction,
-} from "@/app/actions/admin-actions";
+} from "@/actions";
 import {
   Plus,
   Search,

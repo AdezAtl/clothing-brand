@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { formatPriceNGN } from "@/lib/utils";
+import { DesktopNavLinks, CATEGORIES } from "./DesktopNavLinks";
 import {
   ShoppingBag,
   Search,
@@ -15,6 +18,11 @@ import {
   Loader2,
   ArrowRight,
   ArrowUpRight,
+  Heart,
+  LogOut,
+  LogIn,
+  UserPlus,
+  Shield,
 } from "lucide-react";
 
 interface SearchProductResult {
@@ -30,67 +38,21 @@ interface SearchProductResult {
   totalStock: number;
 }
 
-const CATEGORIES = [
-  { name: "All Apparel", href: "/shop", slug: null },
-  {
-    name: "Agbada & Traditional",
-    href: "/shop?category=agbada-traditional",
-    slug: "agbada-traditional",
-  },
-  {
-    name: "Modern Two-Piece",
-    href: "/shop?category=modern-two-piece",
-    slug: "modern-two-piece",
-  },
-  {
-    name: "Dresses & Gowns",
-    href: "/shop?category=dresses",
-    slug: "dresses",
-  },
-  {
-    name: "Ready-to-Wear",
-    href: "/shop?category=ready-to-wear",
-    slug: "ready-to-wear",
-  },
-];
-
-function DesktopNavLinks() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const currentCategory = searchParams.get("category");
-
-  return (
-    <nav className="hidden lg:flex items-center justify-center gap-6 xl:gap-8">
-      {CATEGORIES.map((cat) => {
-        const isActive =
-          pathname === "/shop" &&
-          ((cat.slug === null && !currentCategory) ||
-            currentCategory === cat.slug);
-
-        return (
-          <Link
-            key={cat.href}
-            href={cat.href}
-            className={`relative py-1 text-[11px] uppercase tracking-[0.16em] whitespace-nowrap transition-colors ${
-              isActive
-                ? "text-stone-950 font-semibold"
-                : "text-stone-600 hover:text-stone-950 font-medium"
-            }`}
-          >
-            {cat.name}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
 export function Navbar() {
   const { totalCount, setIsOpen } = useCart();
+  const { wishlistCount } = useWishlist();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Account dropdown state
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountDropdownRef = useRef<HTMLDivElement>(null);
+  const isAuthenticated = status === "authenticated" && !!session?.user;
 
   // Live auto-search state
   const [searchResults, setSearchResults] = useState<SearchProductResult[]>([]);
@@ -179,6 +141,47 @@ export function Navbar() {
     };
   }, [searchOpen]);
 
+  // Handle outside clicks to close account dropdown
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    function handleClickOutside(e: MouseEvent | TouchEvent) {
+      if (
+        accountDropdownRef.current &&
+        !accountDropdownRef.current.contains(e.target as Node)
+      ) {
+        setAccountMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [accountMenuOpen]);
+
+  // Handle outside clicks/taps to close mobile menu
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    function handleClickOutside(e: MouseEvent | TouchEvent) {
+      const target = e.target as Node;
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(target) &&
+        mobileTriggerRef.current &&
+        !mobileTriggerRef.current.contains(target)
+      ) {
+        setMobileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [mobileMenuOpen]);
+
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (selectedIndex >= 0 && searchResults[selectedIndex]) {
@@ -220,8 +223,7 @@ export function Navbar() {
       {/* Announcement Bar */}
       <div className="bg-stone-900 text-stone-200 text-xs py-2 px-4 text-center font-medium tracking-wider">
         <span>
-          Akobo, Ibadan Atelier & Showroom • Mon–Sat 10:00 AM • Direct
-          Nigeria-Wide Delivery
+          Made in Ìbàdàn, NG • &ldquo;For the explorer in you&rdquo; • Akobo Atelier • Direct Nigeria-Wide Delivery
         </span>
       </div>
 
@@ -231,6 +233,7 @@ export function Navbar() {
           {/* Mobile menu trigger */}
           <div className="flex items-center gap-2 lg:hidden">
             <button
+              ref={mobileTriggerRef}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 -ml-2 text-stone-700 hover:text-stone-950"
               aria-label="Toggle navigation menu"
@@ -251,23 +254,26 @@ export function Navbar() {
             </button>
           </div>
 
-          {/* Brand Wordmark */}
+          {/* Brand Wordmark & Emblem Mark */}
           <div className="flex items-center shrink-0">
-            <Link href="/" className="flex items-center">
-              <span className="text-xl sm:text-2xl font-black tracking-widest text-stone-950 uppercase font-serif">
-                TULLIPIO
+            <Link
+              href="/"
+              className="flex items-center gap-2 sm:gap-2.5 group py-1"
+              aria-label="Tullipíò Home"
+            >
+              <img
+                src="/brand/emblem.png"
+                alt="Tullipíò Emblem"
+                className="h-7 sm:h-8 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+              <span className="text-xl sm:text-2xl font-black tracking-[0.22em] text-stone-950 uppercase font-serif transition-colors group-hover:text-stone-700">
+                TULLIPÍÒ
               </span>
             </Link>
           </div>
 
           {/* Desktop Category Navigation */}
-          <Suspense
-            fallback={
-              <div className="hidden lg:flex items-center justify-center gap-6 xl:gap-8" />
-            }
-          >
-            <DesktopNavLinks />
-          </Suspense>
+          <DesktopNavLinks />
 
           {/* Right Utility Actions */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
@@ -295,15 +301,144 @@ export function Navbar() {
               )}
             </button>
 
-            {/* User Profile Button with Soft White and Subtle Shadow */}
-            <Link
-              href="/admin"
-              className="w-11 h-11 rounded-2xl bg-[#FAF8F5] border border-stone-200/90 shadow-[0_2px_8px_rgba(28,25,23,0.06)] flex items-center justify-center text-stone-900 hover:border-stone-400 hover:bg-white transition-all"
-              aria-label="User Profile"
-              title="Account & Atelier Portal"
-            >
-              <User className="w-5 h-5 stroke-[1.5]" />
-            </Link>
+            {/* User Profile Button & Account Dropdown Menu */}
+            <div ref={accountDropdownRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountMenuOpen(!accountMenuOpen)}
+                className={`w-11 h-11 rounded-2xl border shadow-[0_2px_8px_rgba(28,25,23,0.06)] flex items-center justify-center transition-all cursor-pointer active:scale-96 ${
+                  accountMenuOpen
+                    ? "bg-white border-stone-900 text-stone-950"
+                    : "bg-[#FAF8F5] border-stone-200/90 text-stone-900 hover:border-stone-400 hover:bg-white"
+                }`}
+                aria-label="User Account Menu"
+                aria-expanded={accountMenuOpen}
+              >
+                <User className="w-5 h-5 stroke-[1.5]" />
+              </button>
+
+              {/* Account Dropdown Popover */}
+              {accountMenuOpen && (
+                <div className="absolute right-0 top-full mt-2.5 w-60 bg-[#FAF8F5] rounded-2xl border border-stone-200/90 shadow-[0_12px_40px_-8px_rgba(28,25,23,0.14)] overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  {isAuthenticated ? (
+                    <>
+                      {/* Signed In Header */}
+                      <div className="px-4 py-3 bg-[#F4F1EA] border-b border-stone-200/70">
+                        <p className="text-xs font-semibold text-stone-950 truncate">
+                          {session.user?.name || "Tullipíò Member"}
+                        </p>
+                        <p className="text-[10px] font-mono text-stone-500 truncate mt-0.5">
+                          {session.user?.email}
+                        </p>
+                      </div>
+
+                      {/* Signed In Links */}
+                      <div className="py-1 text-xs">
+                        <Link
+                          href="/account"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-stone-700 hover:text-stone-950 hover:bg-[#F4F1EA] transition-colors"
+                        >
+                          <User className="w-4 h-4 text-stone-500" />
+                          <span>My Account</span>
+                        </Link>
+
+                        <Link
+                          href="/wishlist"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex items-center justify-between px-4 py-2.5 text-stone-700 hover:text-stone-950 hover:bg-[#F4F1EA] transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Heart className="w-4 h-4 text-stone-500" />
+                            <span>Wishlist</span>
+                          </div>
+                          {wishlistCount > 0 && (
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-950 text-stone-50 font-semibold">
+                              {wishlistCount}
+                            </span>
+                          )}
+                        </Link>
+
+                        {(session.user as any)?.role === "admin" && (
+                          <Link
+                            href="/admin"
+                            onClick={() => setAccountMenuOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-stone-700 hover:text-stone-950 hover:bg-[#F4F1EA] transition-colors"
+                          >
+                            <Shield className="w-4 h-4 text-stone-500" />
+                            <span>Atelier Dashboard</span>
+                          </Link>
+                        )}
+
+                        <div className="my-1 border-t border-stone-200/60" />
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAccountMenuOpen(false);
+                            signOut({ callbackUrl: "/" });
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-stone-700 hover:text-rose-700 hover:bg-rose-50/50 transition-colors cursor-pointer text-left"
+                        >
+                          <LogOut className="w-4 h-4 text-stone-500" />
+                          <span>Log Out</span>
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Signed Out Menu */}
+                      <div className="px-4 py-3 bg-[#F4F1EA] border-b border-stone-200/70">
+                        <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-stone-500 block">
+                          Tullipíò Atelier
+                        </span>
+                        <p className="text-xs font-serif font-bold text-stone-950 mt-0.5">
+                          Join the Tulips
+                        </p>
+                      </div>
+
+                      <div className="py-1 text-xs">
+                        <Link
+                          href="/login"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-stone-800 hover:text-stone-950 hover:bg-[#F4F1EA] font-semibold transition-colors"
+                        >
+                          <LogIn className="w-4 h-4 text-stone-500" />
+                          <span>Log In</span>
+                        </Link>
+
+                        <Link
+                          href="/register"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-stone-700 hover:text-stone-950 hover:bg-[#F4F1EA] transition-colors"
+                        >
+                          <UserPlus className="w-4 h-4 text-stone-500" />
+                          <span>Sign Up</span>
+                        </Link>
+
+                        <div className="my-1 border-t border-stone-200/60" />
+
+                        <Link
+                          href="/wishlist"
+                          onClick={() => setAccountMenuOpen(false)}
+                          className="flex items-center justify-between px-4 py-2.5 text-stone-700 hover:text-stone-950 hover:bg-[#F4F1EA] transition-colors"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Heart className="w-4 h-4 text-stone-500" />
+                            <span>Wishlist</span>
+                          </div>
+                          {wishlistCount > 0 && (
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-950 text-stone-50 font-semibold">
+                              {wishlistCount}
+                            </span>
+                          )}
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -479,29 +614,94 @@ export function Navbar() {
 
         {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-stone-200 bg-[#f6f3ec] px-4 pt-3 pb-6 space-y-3 shadow-lg">
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.href}
-                href={cat.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between text-sm uppercase tracking-wider font-medium text-stone-800 py-2 border-b border-stone-200/60"
-              >
-                <span>{cat.name}</span>
-                <ChevronRight className="w-4 h-4 text-stone-400" />
-              </Link>
-            ))}
-            <div className="pt-2">
-              <Link
-                href="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-stone-600 hover:text-stone-950 py-2"
-              >
-                <User className="w-4 h-4" />
-                <span>Account & Profile →</span>
-              </Link>
+          <>
+            {/* Click-outside backdrop for mobile menu */}
+            <div
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 top-20 z-30 bg-stone-950/25 backdrop-blur-[1px] lg:hidden transition-opacity"
+              aria-hidden="true"
+            />
+
+            <div
+              ref={mobileMenuRef}
+              className="relative z-40 lg:hidden border-t border-stone-200 bg-[#f6f3ec] px-4 pt-3 pb-6 space-y-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-150"
+            >
+              {CATEGORIES.map((cat) => (
+                <Link
+                  key={cat.href}
+                  href={cat.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between text-sm uppercase tracking-wider font-medium text-stone-800 py-2 border-b border-stone-200/60"
+                >
+                  <span>{cat.name}</span>
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                </Link>
+              ))}
+              {/* Account & Wishlist Links in Mobile Menu */}
+              <div className="pt-3 border-t border-stone-200/80 space-y-2">
+                <Link
+                  href="/wishlist"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-between text-xs uppercase tracking-widest text-stone-700 hover:text-stone-950 py-2"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Heart className="w-4 h-4 text-stone-500" />
+                    <span>Wishlist</span>
+                  </div>
+                  {wishlistCount > 0 && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-950 text-stone-50 font-semibold">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
+
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      href="/account"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between text-xs uppercase tracking-widest text-stone-700 hover:text-stone-950 py-2"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <User className="w-4 h-4 text-stone-500" />
+                        <span>Account ({session.user?.name || "Member"})</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-stone-400" />
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        signOut({ callbackUrl: "/" });
+                      }}
+                      className="w-full flex items-center gap-2.5 text-xs uppercase tracking-widest text-rose-700 py-2 cursor-pointer text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Log Out</span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-2.5 pt-1">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 text-center py-2.5 rounded-xl bg-stone-950 text-stone-50 text-xs font-semibold uppercase tracking-wider"
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex-1 text-center py-2.5 rounded-xl border border-stone-300 text-stone-800 text-xs font-semibold uppercase tracking-wider"
+                    >
+                      Sign Up
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
+          </>
         )}
       </header>
     </>

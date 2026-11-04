@@ -52,7 +52,7 @@ export const productVariants = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
-    check("stock_quantity_non_negative", sql`${table.stockQuantity} >= 0`),
+    check("stock_quantity_non_negative", sql`stock_quantity >= 0`),
   ]
 );
 

@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { db } from "./index";
 import {
+  users,
   categories,
   products,
   productVariants,
@@ -18,7 +19,34 @@ import {
   SeedBanner,
 } from "./seed-data";
 
+export interface UserRecord {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: "customer" | "admin";
+  createdAt: Date;
+}
+
 // In-memory state for mock resilience
+let memUsers: UserRecord[] = [
+  {
+    id: "00000000-0000-4000-8000-000000000001",
+    name: "Tullipio Head Designer",
+    email: "admin@tullipio.com",
+    passwordHash: "$2a$10$tZkIq4uXG9MhGgW2XFvW7.Y4f32R5w1uB7tE8i9p0a1s2d3f4g5h6",
+    role: "admin",
+    createdAt: new Date(),
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000002",
+    name: "Folake Alabi",
+    email: "folake@example.com",
+    passwordHash: "$2a$10$tZkIq4uXG9MhGgW2XFvW7.Y4f32R5w1uB7tE8i9p0a1s2d3f4g5h6",
+    role: "customer",
+    createdAt: new Date(),
+  },
+];
 let memCategories: SeedCategory[] = [...SEED_CATEGORIES];
 let memProducts: SeedProduct[] = [...SEED_PRODUCTS];
 let memBanner: SeedBanner = { ...SEED_BANNER };
@@ -422,4 +450,99 @@ export async function updateVariantStock(variantId: string, delta: number) {
   }
 
   return updateVariantStockInMemory(variantId, delta);
+}
+
+export async function findUserByEmail(email: string): Promise<UserRecord | null> {
+  const normalized = email.toLowerCase().trim();
+  try {
+    const user = await db.query.users.findFirst({
+      where: eq(users.email, normalized),
+    });
+    if (user) return user as UserRecord;
+  } catch {}
+  return memUsers.find((u) => u.email.toLowerCase() === normalized) || null;
+}
+
+export async function createUser(data: {
+  name: string;
+  email: string;
+  passwordHash: string;
+  role?: "customer" | "admin";
+}): Promise<UserRecord> {
+  const normalized = data.email.toLowerCase().trim();
+  const id = crypto.randomUUID();
+  const record: UserRecord = {
+    id,
+    name: data.name.trim(),
+    email: normalized,
+    passwordHash: data.passwordHash,
+    role: data.role || "customer",
+    createdAt: new Date(),
+  };
+
+  try {
+    await db.insert(users).values({
+      id: record.id,
+      name: record.name,
+      email: record.email,
+      passwordHash: record.passwordHash,
+      role: record.role,
+    });
+  } catch (err) {
+    console.warn("DB user insert error, writing to memUsers:", err);
+  }
+
+  // Also maintain in-memory list
+  const existingIdx = memUsers.findIndex((u) => u.email.toLowerCase() === normalized);
+  if (existingIdx >= 0) {
+    memUsers[existingIdx] = record;
+  } else {
+    memUsers.push(record);
+  }
+
+  return record;
+}
+
+export async function deleteUserById(id: string) {
+  try {
+    await db.delete(users).where(eq(users.id, id));
+  } catch (err) {
+    console.warn("DB user delete error:", err);
+  }
+  memUsers = memUsers.filter((u) => u.id !== id);
+  return { success: true };
+}
+
+export async function getAllUsers(): Promise<Omit<UserRecord, "passwordHash">[]> {
+  try {
+    const rows = await db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        role: users.role,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .orderBy(desc(users.createdAt));
+    if (rows && rows.length > 0) {
+      return rows as Omit<UserRecord, "passwordHash">[];
+    }
+  } catch {}
+
+  return memUsers.map(({ passwordHash, ...rest }) => rest);
+}
+
+export async function updateUserRole(userId: string, newRole: "customer" | "admin") {
+  try {
+    await db.update(users).set({ role: newRole }).where(eq(users.id, userId));
+  } catch (err) {
+    console.warn("DB user role update error:", err);
+  }
+
+  const memUser = memUsers.find((u) => u.id === userId);
+  if (memUser) {
+    memUser.role = newRole;
+  }
+  return { success: true, userId, role: newRole };
 }

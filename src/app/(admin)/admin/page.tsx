@@ -1,4 +1,6 @@
 import React from "react";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { getOrders, getProducts } from "@/db/store";
 import { formatPriceNGN } from "@/lib/utils";
 import Link from "next/link";
@@ -12,6 +14,11 @@ import {
 } from "lucide-react";
 
 export default async function AdminOverviewPage() {
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "admin") {
+    redirect("/admin/login?reason=unauthorized");
+  }
+
   const [orders, products] = await Promise.all([getOrders(), getProducts()]);
 
   // Compute KPIs

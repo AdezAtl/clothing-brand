@@ -9,17 +9,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-1">
-            <h3 className="text-xl font-serif font-black tracking-widest text-stone-100 uppercase">
-              TULLIPIO
+            <h3 className="text-xl font-serif font-black tracking-[0.2em] text-stone-100 uppercase">
+              TULLIPÍÒ
             </h3>
-            <p className="text-xs text-stone-400 leading-relaxed font-light">
-              Tullipio Fashion House blends traditional African silhouettes with modern, timeless tailoring. Hand-crafted and tailored in our Akobo, Ibadan atelier.
+            <p className="text-xs text-amber-200/90 font-mono tracking-wider uppercase">
+              Made in Ìbàdàn, NG • For the explorer in you
             </p>
-            <div className="pt-2">
-              <span className="text-[10px] uppercase font-mono tracking-widest px-3.5 py-1.5 rounded-full bg-stone-900 border border-stone-800 text-stone-400 inline-block">
-                Plus Code: CWCR+F7 Ibadan
-              </span>
-            </div>
+            <p className="text-xs text-stone-400 leading-relaxed font-light">
+              Contemporary womenswear and fashion bridging Nigerian cultural heritage (Aṣọ Òkè and Àdìrẹ) with modern cutting-edge tailoring and architectural structure. Handcrafted for the Tulips in our Akobo, Ibadan atelier.
+            </p>
           </div>
 
           {/* Atelier Contact & Physical Location */}
@@ -96,22 +94,17 @@ export function Footer() {
           {/* Customer & Atelier Ops */}
           <div className="space-y-3">
             <h4 className="text-xs uppercase tracking-widest font-semibold text-stone-100">
-              Operations & Admin
+              Customer Care & Delivery
             </h4>
             <ul className="space-y-2.5 text-xs text-stone-400">
               <li>
-                <span className="text-stone-400">Payment: Bachs Secure Payment Gateway (NGN)</span>
+                <span className="text-stone-400">Payment: Verified Secure Checkout</span>
               </li>
               <li>
                 <span className="text-stone-400">Shipping: Direct dispatch across Nigeria</span>
               </li>
-              <li className="pt-2">
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-900 border border-stone-800 text-stone-300 hover:text-white hover:border-stone-600 transition-all text-xs font-mono"
-                >
-                  <span>→ Atelier Admin Portal</span>
-                </Link>
+              <li>
+                <span className="text-stone-400">Fittings: Bespoke showroom sessions in Akobo</span>
               </li>
             </ul>
           </div>
@@ -119,8 +112,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-stone-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 font-light">
-          <p>© {new Date().getFullYear()} Tullipio Fashion House. All rights reserved. Akobo, Ibadan, Nigeria.</p>
-          <p className="font-mono text-[11px]">Clean Architecture • Drizzle ORM • Bachs Payment System</p>
+          <p>© {new Date().getFullYear()} Tullipíò. All rights reserved. Made in Ìbàdàn, Nigeria.</p>
         </div>
       </div>
     </footer>

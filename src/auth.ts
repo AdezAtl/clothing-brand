@@ -1,9 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { findUserByEmail } from "@/db/store";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -26,9 +24,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const password = String(credentials.password);
 
         try {
-          const user = await db.query.users.findFirst({
-            where: eq(users.email, email),
-          });
+          const user = await findUserByEmail(email);
 
           if (user) {
             const isPasswordValid = await bcrypt.compare(
@@ -76,6 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt({ token, user }) {
       if (user) {
+        token.id = (user as any).id;
         token.role = (user as any).role || "customer";
         token.loginTimestamp = Date.now();
       }
@@ -83,7 +80,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role as string;
+        (session.user as any).id = (token.id as string) || (token.sub as string);
+        (session.user as any).role = (token.role as string) || "customer";
         (session.user as any).loginTimestamp = token.loginTimestamp as number;
       }
       return session;

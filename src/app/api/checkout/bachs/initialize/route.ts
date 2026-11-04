@@ -28,8 +28,8 @@ const checkoutSchema = z.object({
   items: z
     .array(
       z.object({
-        variantId: z.string(),
-        quantity: z.number().int().positive(),
+        variantId: z.string().uuid("Invalid variant ID format: must be a valid UUID"),
+        quantity: z.number().int().positive("Quantity must be at least 1"),
       })
     )
     .min(1, "Cart cannot be empty"),

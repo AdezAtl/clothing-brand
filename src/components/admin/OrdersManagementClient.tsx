@@ -11,7 +11,7 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import { formatPriceNGN } from "@/lib/utils";
-import { updateOrderStatusAction } from "@/app/actions/admin-actions";
+import { updateOrderStatusAction } from "@/actions";
 import {
   Search,
   Eye,
