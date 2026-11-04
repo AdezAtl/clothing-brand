@@ -41,35 +41,35 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   const currentCategoryObj = categories.find((c) => c.slug === currentCategorySlug);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Header Banner */}
-      <div className="mb-10 pb-6 border-b border-stone-200 flex flex-col md:flex-row md:items-end justify-between gap-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      {/* Header Banner — Softer White with Subtle Shadow */}
+      <div className="mb-10 p-7 sm:p-8 rounded-2xl bg-[#FAF8F5] border border-stone-200/85 flex flex-col md:flex-row md:items-end justify-between gap-6 shadow-[0_4px_20px_-4px_rgba(28,25,23,0.06)]">
         <div>
           <span className="text-xs uppercase font-mono tracking-widest text-stone-500">
             Catalog & Ready Garments
           </span>
-          <h1 className="text-3xl font-serif text-stone-950 mt-1">
+          <h1 className="text-3xl sm:text-4xl font-serif font-bold text-stone-950 mt-1">
             {currentCategoryObj ? currentCategoryObj.name : "All Tullipio Garments"}
           </h1>
-          <p className="text-xs text-stone-500 mt-1 max-w-xl">
+          <p className="text-xs text-stone-600 mt-2 max-w-xl leading-relaxed">
             {currentCategoryObj?.description ||
-              "Explore all contemporary Yoruba and pan-African garments handcrafted with heavyweight textiles in Akobo, Ibadan."}
+              "Explore contemporary Yoruba and pan-African garments handcrafted with heavyweight heritage textiles in Akobo, Ibadan."}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-mono text-stone-500">
+        <div className="flex items-center gap-2 text-xs font-mono text-stone-600 bg-[#F4F1EA] px-4 py-2 rounded-full border border-stone-200/80 shrink-0">
           <SlidersHorizontal className="w-3.5 h-3.5" />
           <span>Showing {filtered.length} garments</span>
         </div>
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex flex-wrap gap-2 mb-8">
+      <div className="flex flex-wrap gap-2.5 mb-10">
         <Link
           href="/shop"
-          className={`px-4 py-2 text-xs uppercase tracking-wider font-medium border transition-colors ${
+          className={`px-5 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all shadow-2xs ${
             !currentCategorySlug
-              ? "bg-stone-900 text-stone-50 border-stone-900"
-              : "bg-white text-stone-600 border-stone-200 hover:border-stone-400"
+              ? "bg-stone-950 text-stone-50 shadow-sm"
+              : "bg-[#FAF8F5] text-stone-700 border border-stone-200/80 hover:border-stone-400 hover:text-stone-900"
           }`}
         >
           All ({allProducts.length})
@@ -78,10 +78,10 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
           <Link
             key={cat.slug}
             href={`/shop?category=${cat.slug}`}
-            className={`px-4 py-2 text-xs uppercase tracking-wider font-medium border transition-colors ${
+            className={`px-5 py-2 rounded-full text-xs uppercase tracking-wider font-semibold transition-all shadow-2xs ${
               currentCategorySlug === cat.slug
-                ? "bg-stone-900 text-stone-50 border-stone-900"
-                : "bg-white text-stone-600 border-stone-200 hover:border-stone-400"
+                ? "bg-stone-950 text-stone-50 shadow-sm"
+                : "bg-[#FAF8F5] text-stone-700 border border-stone-200/80 hover:border-stone-400 hover:text-stone-900"
             }`}
           >
             {cat.name}
@@ -91,20 +91,20 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
 
       {/* Product Grid */}
       {filtered.length === 0 ? (
-        <div className="py-20 text-center bg-stone-100/60 border border-stone-200 p-8">
+        <div className="py-20 text-center bg-[#FAF8F5] rounded-2xl border border-stone-200 p-8 shadow-xs">
           <p className="text-stone-700 font-medium text-sm">No garments found in this category.</p>
           <p className="text-stone-500 text-xs mt-1">
             Try choosing a different category or clearing your search term.
           </p>
           <Link
             href="/shop"
-            className="mt-6 inline-block px-6 py-2.5 bg-stone-900 text-stone-50 text-xs uppercase tracking-widest font-semibold"
+            className="mt-6 inline-block px-7 py-3 rounded-full bg-stone-950 text-stone-50 text-xs uppercase tracking-widest font-semibold hover:bg-stone-800 transition-all shadow-sm"
           >
             Reset Catalog Filters
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-7">
           {filtered.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -113,4 +113,3 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     </div>
   );
 }
-

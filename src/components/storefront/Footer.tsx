@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="bg-stone-950 text-stone-300 border-t border-stone-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-1">
             <h3 className="text-xl font-serif font-black tracking-widest text-stone-100 uppercase">
@@ -16,7 +16,7 @@ export function Footer() {
               Tullipio Fashion House blends traditional African silhouettes with modern, timeless tailoring. Hand-crafted and tailored in our Akobo, Ibadan atelier.
             </p>
             <div className="pt-2">
-              <span className="text-[10px] uppercase font-mono tracking-widest px-2.5 py-1 bg-stone-900 border border-stone-800 text-stone-400">
+              <span className="text-[10px] uppercase font-mono tracking-widest px-3.5 py-1.5 rounded-full bg-stone-900 border border-stone-800 text-stone-400 inline-block">
                 Plus Code: CWCR+F7 Ibadan
               </span>
             </div>
@@ -27,7 +27,7 @@ export function Footer() {
             <h4 className="text-xs uppercase tracking-widest font-semibold text-stone-100">
               Atelier & Showroom
             </h4>
-            <div className="space-y-2 text-xs text-stone-400 leading-relaxed">
+            <div className="space-y-2.5 text-xs text-stone-400 leading-relaxed">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-stone-500 shrink-0 mt-0.5" />
                 <span>
@@ -64,7 +64,7 @@ export function Footer() {
             <h4 className="text-xs uppercase tracking-widest font-semibold text-stone-100">
               Collections
             </h4>
-            <ul className="space-y-2 text-xs text-stone-400">
+            <ul className="space-y-2.5 text-xs text-stone-400">
               <li>
                 <Link href="/shop?category=agbada-traditional" className="hover:text-stone-200 transition-colors">
                   Agbada & Traditional Silhouettes
@@ -98,16 +98,19 @@ export function Footer() {
             <h4 className="text-xs uppercase tracking-widest font-semibold text-stone-100">
               Operations & Admin
             </h4>
-            <ul className="space-y-2 text-xs text-stone-400">
+            <ul className="space-y-2.5 text-xs text-stone-400">
               <li>
                 <span className="text-stone-400">Payment: Bachs Secure Payment Gateway (NGN)</span>
               </li>
               <li>
                 <span className="text-stone-400">Shipping: Direct dispatch across Nigeria</span>
               </li>
-              <li>
-                <Link href="/admin" className="text-stone-300 hover:text-white font-mono underline underline-offset-4">
-                  → Tullipio Staff Admin Portal
+              <li className="pt-2">
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-900 border border-stone-800 text-stone-300 hover:text-white hover:border-stone-600 transition-all text-xs font-mono"
+                >
+                  <span>→ Atelier Admin Portal</span>
                 </Link>
               </li>
             </ul>
@@ -123,4 +126,3 @@ export function Footer() {
     </footer>
   );
 }
-

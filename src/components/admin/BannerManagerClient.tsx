@@ -54,10 +54,10 @@ export function BannerManagerClient({ initialBanner }: BannerManagerClientProps)
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Form Column */}
-        <form onSubmit={handleSave} className="lg:col-span-7 bg-white p-6 border border-stone-200 space-y-4">
+        {/* Curvy Form Column */}
+        <form onSubmit={handleSave} className="lg:col-span-7 bg-white p-7 sm:p-8 rounded-[28px] border border-stone-200/80 shadow-xs space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1.5">
               Headline *
             </label>
             <input
@@ -65,12 +65,12 @@ export function BannerManagerClient({ initialBanner }: BannerManagerClientProps)
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full text-xs p-2.5 border border-stone-300 focus:border-stone-900 bg-stone-50/50"
+              className="w-full text-xs p-3 rounded-xl border border-stone-300 focus:border-stone-900 bg-stone-50/50"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1.5">
               Subtext & Craft Narrative *
             </label>
             <textarea
@@ -78,12 +78,12 @@ export function BannerManagerClient({ initialBanner }: BannerManagerClientProps)
               required
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
-              className="w-full text-xs p-2.5 border border-stone-300 focus:border-stone-900 bg-stone-50/50"
+              className="w-full text-xs p-3 rounded-xl border border-stone-300 focus:border-stone-900 bg-stone-50/50"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1.5">
               Hero Editorial Image URL (R2 / CDN) *
             </label>
             <input
@@ -91,13 +91,13 @@ export function BannerManagerClient({ initialBanner }: BannerManagerClientProps)
               required
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full text-xs p-2.5 border border-stone-300 focus:border-stone-900 bg-stone-50/50 font-mono"
+              className="w-full text-xs p-3 rounded-xl border border-stone-300 focus:border-stone-900 bg-stone-50/50 font-mono"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1.5">
                 CTA Button Text *
               </label>
               <input
@@ -105,11 +105,11 @@ export function BannerManagerClient({ initialBanner }: BannerManagerClientProps)
                 required
                 value={ctaText}
                 onChange={(e) => setCtaText(e.target.value)}
-                className="w-full text-xs p-2.5 border border-stone-300 focus:border-stone-900 bg-stone-50/50"
+                className="w-full text-xs p-3 rounded-xl border border-stone-300 focus:border-stone-900 bg-stone-50/50"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-1.5">
                 CTA Target Route *
               </label>
               <input
@@ -117,64 +117,63 @@ export function BannerManagerClient({ initialBanner }: BannerManagerClientProps)
                 required
                 value={ctaLink}
                 onChange={(e) => setCtaLink(e.target.value)}
-                className="w-full text-xs p-2.5 border border-stone-300 focus:border-stone-900 bg-stone-50/50 font-mono"
+                className="w-full text-xs p-3 rounded-xl border border-stone-300 focus:border-stone-900 bg-stone-50/50 font-mono"
               />
             </div>
           </div>
 
-          <div className="pt-4 flex items-center justify-between border-t border-stone-200">
-            {savedSuccess && (
-              <span className="text-xs text-emerald-700 flex items-center gap-1.5 font-medium">
-                <Check className="w-4 h-4" />
+          <div className="pt-4 flex items-center justify-between border-t border-stone-100">
+            {savedSuccess ? (
+              <span className="text-xs text-emerald-700 flex items-center gap-1.5 font-medium px-3 py-1 rounded-full bg-emerald-50">
+                <Check className="w-4 h-4 text-emerald-600" />
                 <span>Published to Storefront!</span>
               </span>
-            )}
-            {!savedSuccess && <div />}
+            ) : <span />}
 
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-stone-950 text-stone-50 text-xs font-semibold uppercase tracking-widest hover:bg-stone-800 transition-colors flex items-center gap-2"
+              className="px-7 py-3 rounded-full bg-stone-950 text-stone-50 text-xs font-semibold uppercase tracking-widest hover:bg-stone-800 transition-all flex items-center gap-2 shadow-xs cursor-pointer disabled:opacity-60"
             >
               {saving ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>Publishing...</span>
                 </>
               ) : (
-                <span>Publish Changes</span>
+                <span>Publish Updates</span>
               )}
             </button>
           </div>
         </form>
 
-        {/* Live Preview Column */}
+        {/* Live Preview Column with Curvy Frame */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase text-stone-500">
+          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-stone-500">
             <Eye className="w-4 h-4" />
-            <span>Storefront Preview</span>
+            <span>Storefront Live Simulation</span>
           </div>
 
-          <div className="relative bg-stone-900 text-stone-100 p-6 aspect-[4/5] flex flex-col justify-end overflow-hidden border border-stone-800">
+          <div className="relative aspect-[4/5] rounded-[28px] overflow-hidden bg-stone-900 text-stone-100 p-6 flex flex-col justify-end shadow-md border border-stone-800">
             <img
               src={imageUrl}
               alt="Preview"
-              className="absolute inset-0 w-full h-full object-cover opacity-35"
+              className="absolute inset-0 w-full h-full object-cover object-top opacity-40 filter contrast-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/70 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/50 to-transparent" />
 
             <div className="relative z-10 space-y-3">
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-stone-800 border border-stone-700">
-                Akobo Atelier
+              <span className="text-[10px] uppercase font-mono tracking-widest px-3 py-1 rounded-full bg-stone-800/90 text-stone-300 inline-block border border-stone-700/60">
+                Akobo, Ibadan
               </span>
-              <h3 className="text-xl font-serif text-stone-100 leading-tight">
+              <h3 className="text-xl font-serif font-bold text-stone-50 leading-tight">
                 {title}
               </h3>
-              <p className="text-xs text-stone-300 font-light line-clamp-3">
+              <p className="text-xs text-stone-300 line-clamp-2 font-light">
                 {subtitle}
               </p>
               <div className="pt-2">
-                <span className="inline-block px-4 py-2 bg-stone-100 text-stone-950 text-[10px] font-bold uppercase tracking-widest">
+                <span className="inline-block px-5 py-2.5 rounded-full bg-stone-100 text-stone-950 text-[11px] font-semibold uppercase tracking-wider shadow-sm">
                   {ctaText} →
                 </span>
               </div>
@@ -185,4 +184,3 @@ export function BannerManagerClient({ initialBanner }: BannerManagerClientProps)
     </div>
   );
 }
-

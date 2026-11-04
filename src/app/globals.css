@@ -1,11 +1,35 @@
 @import "tailwindcss";
 
+@source "../components/**/*.{tsx,ts,jsx,js}";
+@source "../app/**/*.{tsx,ts,jsx,js}";
+@source "../context/**/*.{tsx,ts,jsx,js}";
+@source "../lib/**/*.{tsx,ts,jsx,js}";
+@source "../actions/**/*.{tsx,ts,jsx,js}";
+
+@theme {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-serif: "DM Serif Display", Georgia, serif;
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, monospace;
+}
+
 :root {
-  --background: #faf8f5;
-  --foreground: #141413;
+  --background: #f6f3ec;
+  --foreground: #181716;
+  --card: #faf8f5;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

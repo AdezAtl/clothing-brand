@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/db";
 import { orders, orderItems, productVariants, products } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { initializeBachsTransaction } from "@/lib/payments/bachs";
 import { generateOrderNumber } from "@/lib/utils";
-import { createOrder, updateVariantStock } from "@/db/store";
+import { createOrder, getMemProducts } from "@/db/store";
+
+class CheckoutValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CheckoutValidationError";
+  }
+}
 
 const checkoutSchema = z.object({
   customerName: z.string().min(2, "Name is required"),
@@ -18,12 +25,14 @@ const checkoutSchema = z.object({
     postalCode: z.string().optional(),
     notes: z.string().optional(),
   }),
-  items: z.array(
-    z.object({
-      variantId: z.string(),
-      quantity: z.number().int().positive(),
-    })
-  ).min(1, "Cart cannot be empty"),
+  items: z
+    .array(
+      z.object({
+        variantId: z.string(),
+        quantity: z.number().int().positive(),
+      })
+    )
+    .min(1, "Cart cannot be empty"),
 });
 
 export async function POST(req: NextRequest) {
@@ -38,9 +47,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { customerName, customerEmail, customerPhone, shippingAddress, items } = parsed.data;
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      items,
+    } = parsed.data;
     const orderNumber = generateOrderNumber();
-    const bachsReference = `bachs_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const bachsReference = `bachs_${Date.now()}_${Math.random()
+      .toString(36)
+      .substring(2, 8)}`;
 
     let serverCalculatedTotal = 0;
     const verifiedOrderItems: Array<{
@@ -52,11 +69,9 @@ export async function POST(req: NextRequest) {
       unitPrice: number;
     }> = [];
 
-    // Attempt Drizzle ACID Transaction with row locking
     try {
       await db.transaction(async (tx) => {
         for (const item of items) {
-          // Select with FOR UPDATE to prevent race conditions during checkout
           const [variantRecord] = await tx
             .select()
             .from(productVariants)
@@ -64,11 +79,13 @@ export async function POST(req: NextRequest) {
             .for("update");
 
           if (!variantRecord) {
-            throw new Error(`Variant not found: ${item.variantId}`);
+            throw new CheckoutValidationError(
+              `Variant not found: ${item.variantId}`
+            );
           }
 
           if (variantRecord.stockQuantity < item.quantity) {
-            throw new Error(
+            throw new CheckoutValidationError(
               `Insufficient stock for SKU ${variantRecord.sku}. Available: ${variantRecord.stockQuantity}`
             );
           }
@@ -78,7 +95,9 @@ export async function POST(req: NextRequest) {
             .from(products)
             .where(eq(products.id, variantRecord.productId));
 
-          const unitPrice = variantRecord.priceOverride ?? (productRecord ? productRecord.basePrice : 0);
+          const unitPrice =
+            variantRecord.priceOverride ??
+            (productRecord ? productRecord.basePrice : 0);
           serverCalculatedTotal += unitPrice * item.quantity;
 
           verifiedOrderItems.push({
@@ -91,7 +110,6 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        // Insert Order
         const [createdOrder] = await tx
           .insert(orders)
           .values({
@@ -107,7 +125,6 @@ export async function POST(req: NextRequest) {
           })
           .returning();
 
-        // Insert Order Items
         for (const oi of verifiedOrderItems) {
           await tx.insert(orderItems).values({
             orderId: createdOrder.id,
@@ -120,19 +137,28 @@ export async function POST(req: NextRequest) {
           });
         }
       });
-    } catch (dbErr) {
-      console.warn("DB transaction bypassed or DB not connected, utilizing store fallback:", dbErr);
+    } catch (dbErr: any) {
+      // Immediately return 400 on stock or missing variant errors
+      if (dbErr instanceof CheckoutValidationError) {
+        return NextResponse.json({ error: dbErr.message }, { status: 400 });
+      }
 
-      // In-memory fallback verification
-      const { SEED_PRODUCTS } = await import("@/db/seed-data");
+      console.warn(
+        "DB transaction bypassed or DB not connected, utilizing store fallback:",
+        dbErr
+      );
+
+      const catalog = getMemProducts();
       serverCalculatedTotal = 0;
       verifiedOrderItems.length = 0;
 
       for (const item of items) {
         let foundVariant = null;
         let foundProduct = null;
-        for (const prod of SEED_PRODUCTS) {
-          const v = prod.variants.find((variant) => variant.id === item.variantId);
+        for (const prod of catalog) {
+          const v = prod.variants.find(
+            (variant) => variant.id === item.variantId
+          );
           if (v) {
             foundVariant = v;
             foundProduct = prod;
@@ -181,8 +207,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Call Bachs Payment wrapper to initialize session
-    const callbackUrl = `${req.nextUrl.origin}/checkout/confirmation?orderNumber=${encodeURIComponent(
+    const callbackUrl = `${
+      req.nextUrl.origin
+    }/checkout/confirmation?orderNumber=${encodeURIComponent(
       orderNumber
     )}&ref=${encodeURIComponent(bachsReference)}`;
 
@@ -213,4 +240,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

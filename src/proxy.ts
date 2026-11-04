@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protect /admin routes (except /admin/login)
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    // Check session token cookie (Auth.js uses authjs.session-token or __Secure-authjs.session-token)
     const sessionToken =
       request.cookies.get("authjs.session-token")?.value ||
       request.cookies.get("__Secure-authjs.session-token")?.value ||
@@ -26,4 +25,3 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/admin/:path*"],
 };
-

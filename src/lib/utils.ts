@@ -20,11 +20,14 @@ export function formatPriceNGN(kobo: number): string {
 }
 
 /**
- * Generate human-readable order number, e.g. TLP-2026-8492
+ * Generate collision-resistant human-readable order number, e.g. TLP-2026-9F4K2A
  */
 export function generateOrderNumber(): string {
-  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let suffix = "";
+  for (let i = 0; i < 6; i++) {
+    suffix += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
   const year = new Date().getFullYear();
-  return `TLP-${year}-${randomSuffix}`;
+  return `TLP-${year}-${suffix}`;
 }
-

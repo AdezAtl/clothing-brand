@@ -1,19 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPresignedUploadUrl } from "@/lib/storage/r2";
+import { auth } from "@/auth";
 import { z } from "zod";
 
 const uploadSchema = z.object({
   filename: z.string().min(1),
-  contentType: z.string().min(1),
+  contentType: z
+    .string()
+    .regex(/^image\/(jpeg|png|webp|avif|gif)$/, "Only image uploads are allowed"),
 });
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user || (session.user as any).role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const json = await req.json();
     const parsed = uploadSchema.safeParse(json);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid parameters", details: parsed.error.format() },
+        { status: 400 }
+      );
     }
 
     const { filename, contentType } = parsed.data;
@@ -28,4 +39,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

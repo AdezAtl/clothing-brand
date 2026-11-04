@@ -44,13 +44,15 @@ export default async function AdminOverviewPage() {
         </h1>
       </div>
 
-      {/* 4 KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 Curvy KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Total Revenue */}
-        <div className="bg-white p-5 border border-stone-200">
+        <div className="bg-white p-6 rounded-[24px] border border-stone-200/80 shadow-xs hover:border-stone-300 transition-all">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
             <span className="uppercase font-semibold tracking-wider">Settled Revenue</span>
-            <DollarSign className="w-4 h-4 text-emerald-700" />
+            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700">
+              <DollarSign className="w-4 h-4" />
+            </div>
           </div>
           <p className="text-2xl font-bold font-mono text-stone-950">
             {formatPriceNGN(totalRevenueKobo)}
@@ -62,10 +64,12 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Pending Orders */}
-        <div className="bg-white p-5 border border-stone-200">
+        <div className="bg-white p-6 rounded-[24px] border border-stone-200/80 shadow-xs hover:border-stone-300 transition-all">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
             <span className="uppercase font-semibold tracking-wider">Actionable Orders</span>
-            <ShoppingBag className="w-4 h-4 text-stone-700" />
+            <div className="p-2 rounded-xl bg-stone-100 text-stone-700">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
           </div>
           <p className="text-2xl font-bold font-mono text-stone-950">
             {pendingOrdersCount}
@@ -76,10 +80,12 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Low Stock Alerts */}
-        <div className="bg-white p-5 border border-stone-200">
+        <div className="bg-white p-6 rounded-[24px] border border-stone-200/80 shadow-xs hover:border-stone-300 transition-all">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
             <span className="uppercase font-semibold tracking-wider">Low Stock SKUs</span>
-            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <div className="p-2 rounded-xl bg-amber-50 text-amber-700">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
           </div>
           <p className="text-2xl font-bold font-mono text-amber-900">
             {lowStockVariantsCount}
@@ -90,10 +96,12 @@ export default async function AdminOverviewPage() {
         </div>
 
         {/* Active Garments */}
-        <div className="bg-white p-5 border border-stone-200">
+        <div className="bg-white p-6 rounded-[24px] border border-stone-200/80 shadow-xs hover:border-stone-300 transition-all">
           <div className="flex items-center justify-between text-xs text-stone-500 mb-2">
             <span className="uppercase font-semibold tracking-wider">Active Catalog</span>
-            <Layers className="w-4 h-4 text-stone-700" />
+            <div className="p-2 rounded-xl bg-stone-100 text-stone-700">
+              <Layers className="w-4 h-4" />
+            </div>
           </div>
           <p className="text-2xl font-bold font-mono text-stone-950">
             {activeProductsCount}
@@ -104,57 +112,57 @@ export default async function AdminOverviewPage() {
         </div>
       </div>
 
-      {/* Recent Orders Section */}
-      <div className="bg-white border border-stone-200 p-6 space-y-4">
+      {/* Recent Orders Section with Curvy Frame */}
+      <div className="bg-white border border-stone-200/80 rounded-[28px] p-6 sm:p-7 shadow-xs space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-semibold uppercase tracking-wider text-stone-900">
               Recent Customer Orders
             </h2>
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-stone-500 mt-0.5">
               Real-time feed of purchases through Bachs Gateway
             </p>
           </div>
           <Link
             href="/admin/orders"
-            className="text-xs uppercase font-mono tracking-wider text-stone-700 hover:text-stone-950 inline-flex items-center gap-1"
+            className="text-xs uppercase font-mono tracking-wider text-stone-700 hover:text-stone-950 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-stone-200 hover:border-stone-400 transition-all"
           >
             <span>Manage All Orders</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-2xl border border-stone-200/60">
           <table className="w-full text-left text-xs">
-            <thead className="bg-stone-50 border-y border-stone-200 text-stone-500 font-mono uppercase">
+            <thead className="bg-stone-50/80 border-b border-stone-200 text-stone-500 font-mono uppercase text-[11px]">
               <tr>
-                <th className="py-2.5 px-3">Order Number</th>
-                <th className="py-2.5 px-3">Customer</th>
-                <th className="py-2.5 px-3">Destination</th>
-                <th className="py-2.5 px-3">Amount</th>
-                <th className="py-2.5 px-3">Payment</th>
-                <th className="py-2.5 px-3">Fulfillment</th>
+                <th className="py-3 px-4">Order Number</th>
+                <th className="py-3 px-4">Customer</th>
+                <th className="py-3 px-4">Destination</th>
+                <th className="py-3 px-4">Amount</th>
+                <th className="py-3 px-4">Payment</th>
+                <th className="py-3 px-4">Fulfillment</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {orders.slice(0, 5).map((order: any) => (
-                <tr key={order.id} className="hover:bg-stone-50/70">
-                  <td className="py-3 px-3 font-mono font-medium text-stone-900">
+                <tr key={order.id} className="hover:bg-stone-50/70 transition-colors">
+                  <td className="py-3 px-4 font-mono font-medium text-stone-900">
                     {order.orderNumber}
                   </td>
-                  <td className="py-3 px-3">
+                  <td className="py-3 px-4">
                     <p className="font-medium text-stone-900">{order.customerName}</p>
                     <p className="text-[11px] text-stone-400">{order.customerPhone}</p>
                   </td>
-                  <td className="py-3 px-3 text-stone-600">
+                  <td className="py-3 px-4 text-stone-600">
                     {order.shippingAddress?.city}, {order.shippingAddress?.state}
                   </td>
-                  <td className="py-3 px-3 font-mono font-semibold text-stone-950">
+                  <td className="py-3 px-4 font-mono font-semibold text-stone-950">
                     {formatPriceNGN(order.totalAmount)}
                   </td>
-                  <td className="py-3 px-3">
+                  <td className="py-3 px-4">
                     <span
-                      className={`inline-block px-2 py-0.5 text-[10px] uppercase font-mono tracking-wider ${
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] uppercase font-mono tracking-wider ${
                         order.paymentStatus === "paid"
                           ? "bg-emerald-100 text-emerald-800"
                           : "bg-amber-100 text-amber-800"
@@ -163,16 +171,8 @@ export default async function AdminOverviewPage() {
                       {order.paymentStatus}
                     </span>
                   </td>
-                  <td className="py-3 px-3">
-                    <span
-                      className={`inline-block px-2 py-0.5 text-[10px] uppercase font-mono tracking-wider ${
-                        order.fulfillmentStatus === "delivered"
-                          ? "bg-stone-900 text-stone-50"
-                          : order.fulfillmentStatus === "processing"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-stone-100 text-stone-600"
-                      }`}
-                    >
+                  <td className="py-3 px-4 capitalize text-stone-700">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 text-[10px] uppercase font-mono">
                       {order.fulfillmentStatus}
                     </span>
                   </td>
@@ -185,4 +185,3 @@ export default async function AdminOverviewPage() {
     </div>
   );
 }
-
